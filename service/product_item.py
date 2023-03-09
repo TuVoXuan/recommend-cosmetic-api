@@ -22,9 +22,11 @@ async def recommend_CF(id: str):
         for tag in item.tags:
             df[item.id][tag] = 1
 
-    result = recommend_item(id, df)
+    result = recommend_item(id, df).to_dict()
 
-    return result
+    filter_result = [key for key in result if result[key] > 0.3]
+
+    return filter_result
 
 
 def recommend_item(id: str, item_profile: pd.DataFrame):
@@ -32,4 +34,5 @@ def recommend_item(id: str, item_profile: pd.DataFrame):
     similar_item = item_profile.corrwith(item)
     similar_item = similar_item.sort_values(ascending=False)
     similar_item = similar_item.iloc[1:]
+    
     return similar_item.head(20)
