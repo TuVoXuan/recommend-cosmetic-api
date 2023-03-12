@@ -1,7 +1,7 @@
 from models.product_item import ProductItem, ProdItemTag
 from typing import List
 from serializer.produc_item import product_items_serializer
-from .tag import get_tags
+from .tag import get_tags, find_tag_weight
 import pandas as pd
 
 async def get_prodItems() -> List[ProdItemTag]:
@@ -20,10 +20,9 @@ async def recommend_CF(id: str):
     df = pd.DataFrame(0, columns=coloumns, index=rows)
     for item in items:
         for tag in item.tags:
-            df[item.id][tag] = 1
+            df[item.id][tag] = find_tag_weight(tag, tags)
 
     result = recommend_item(id, df).to_dict()
-
     filter_result = [key for key in result if result[key] > 0.3]
 
     return filter_result

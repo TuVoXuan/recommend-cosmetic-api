@@ -4,6 +4,7 @@ from bson import ObjectId
 
 class Tag(Document):
     name: str;
+    weight: int;
 
     class Settings:
         name='tags'
