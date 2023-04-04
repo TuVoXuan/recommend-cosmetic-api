@@ -43,4 +43,6 @@ async def get_ratings() -> List[OutputComment]:
             }
         }
     ]).to_list()
+
+    print(ratings[0])
     return comments_serializer(ratings)
