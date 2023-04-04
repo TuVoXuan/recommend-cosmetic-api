@@ -7,15 +7,16 @@ from .tag import Tag
 
 
 class ProductItem(Document):
-    price: int;
-    quantity: int;
-    thumbnail: str;
-    images: List[str];
-    productConfigurations: Optional[List[Link[VariationOption]]];
-    tags: List[Link[Tag]];
+    price: int
+    quantity: int
+    thumbnail: str
+    images: List[str]
+    productConfigurations: Optional[List[Link[VariationOption]]]
+    tags: List[Link[Tag]]
 
     class Settings:
-        name='productitems'
+        name = 'productitems'
+
     class Config:
         orm_mode = True
         allow_population_by_field_name = True
@@ -25,7 +26,6 @@ class ProductItem(Document):
 
 
 class ProdItemTag:
-    def __init__(self, id: str, tags:List[str]):
+    def __init__(self, id: str, tags: List[str]):
         self.id = id
         self.tags = tags
-    

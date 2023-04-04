@@ -1,18 +1,17 @@
-from typing import Optional
 from beanie import Document, Link
 from pydantic import Extra
 from bson import ObjectId
 
-from .tag_group import TagGroup
+from .product_item import ProductItem
 
 
-class Tag(Document):
-    name: str
-    weight: int
-    parent: Link[TagGroup]
+class OrderItem(Document):
+    productItem: Link[ProductItem]
+    price: int
+    quantity: str
 
     class Settings:
-        name = 'tags'
+        name = 'orderitems'
 
     class Config:
         orm_mode = True

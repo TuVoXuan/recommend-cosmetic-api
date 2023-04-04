@@ -1,18 +1,19 @@
-from typing import Optional
-from beanie import Document, Link
+from typing import List
+from beanie import Document
 from pydantic import Extra
 from bson import ObjectId
 
-from .tag_group import TagGroup
+from constants.enum import Gender
 
 
-class Tag(Document):
+class User(Document):
     name: str
-    weight: int
-    parent: Link[TagGroup]
+    email: str
+    password: str
+    gender: Gender
 
     class Settings:
-        name = 'tags'
+        name = 'users'
 
     class Config:
         orm_mode = True

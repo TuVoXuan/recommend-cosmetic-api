@@ -1,18 +1,13 @@
-from typing import Optional
-from beanie import Document, Link
+from beanie import Document
 from pydantic import Extra
 from bson import ObjectId
 
-from .tag_group import TagGroup
 
-
-class Tag(Document):
+class TagGroup(Document):
     name: str
-    weight: int
-    parent: Link[TagGroup]
 
     class Settings:
-        name = 'tags'
+        name = 'taggroups'
 
     class Config:
         orm_mode = True

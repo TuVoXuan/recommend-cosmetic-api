@@ -1,8 +1,13 @@
+from pydantic import BaseModel
+from itemBased import ItemBased
 from models.product_item import ProductItem, ProdItemTag
 from typing import List
 from serializer.produc_item import product_items_serializer
 from .tag import get_tags, find_tag_weight
 import pandas as pd
+from .comment import get_ratings
+from .user import get_user_ids
+
 
 async def get_prodItems() -> List[ProdItemTag]:
     prodItems = await ProductItem.find_all().to_list()
@@ -33,5 +38,27 @@ def recommend_item(id: str, item_profile: pd.DataFrame):
     similar_item = item_profile.corrwith(item)
     similar_item = similar_item.sort_values(ascending=False)
     similar_item = similar_item.iloc[1:]
-    
+
     return similar_item.head(20)
+
+
+async def get_product_item_id():
+    result: List[str] = []
+    prodItems = await ProductItem.find_all().to_list()
+
+    for item in prodItems:
+        result.append(str(item.id))
+
+    return result
+
+
+async def recommend_item_based(user_id: str):
+    ratings = await get_ratings()
+
+    df = pd.DataFrame.from_dict([e.to_dict() for e in ratings])
+
+    item_based_filtering = ItemBased(df)
+    recommend_product_item = item_based_filtering.predict(
+        picked_userid=user_id, number_of_recommendations=10, number_of_similar_items=5)
+
+    return recommend_product_item
