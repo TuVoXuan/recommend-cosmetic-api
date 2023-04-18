@@ -53,6 +53,7 @@ async def get_product_item_id():
 
 
 async def recommend_item_based(user_id: str):
+    result: List[str] = []
     ratings = await get_ratings()
 
     df = pd.DataFrame.from_dict([e.to_dict() for e in ratings])
@@ -61,4 +62,6 @@ async def recommend_item_based(user_id: str):
     recommend_product_item = item_based_filtering.predict(
         picked_userid=user_id, number_of_recommendations=10, number_of_similar_items=5)
 
-    return recommend_product_item
+    for item in recommend_product_item:
+        result.append(item[0])
+    return result
