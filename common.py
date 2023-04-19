@@ -11,5 +11,15 @@ class Translate(BaseModel):
     #     arbitrary_types_allowed = True
     #     json_encoders = {ObjectId: str}
     #     extra = Extra.forbid
-        
-    
+
+class Comment(BaseModel):
+    id: str
+    content: str
+
+class CommentTrans(object):
+    id: str
+    contentTrans: str
+
+    def __init__(self, id, contentTrans):
+        self.id = id
+        self.contentTrans = contentTrans
