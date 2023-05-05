@@ -13,10 +13,14 @@ from config.config import Settings
 
 
 async def init_db():
-    client = motor.motor_asyncio.AsyncIOMotorClient(Settings().DATABASE_URL)
+    try:
+        client = motor.motor_asyncio.AsyncIOMotorClient(
+            Settings().DATABASE_URL)
 
-    await beanie.init_beanie(
-        database=client.hygge,
-        document_models=[ProductItem, VariationOption,
-                         Variation, Tag, TagGroup, Comment, OrderItem, User]
-    )
+        await beanie.init_beanie(
+            database=client.hygge,
+            document_models=[ProductItem, VariationOption,
+                             Variation, Tag, TagGroup, Comment, OrderItem, User]
+        )
+    except:
+        print('Cannot connec to database')
