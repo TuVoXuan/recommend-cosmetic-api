@@ -1,7 +1,10 @@
 import uvicorn
 
 if __name__ == "__main__":
-    uvicorn.run(
-        reload=True,
-        app="main:app"
-    )
+    try:
+        uvicorn.run(
+            reload=False,
+            app="main:app"
+        )
+    except:
+        print('Loi khong chay file main')
