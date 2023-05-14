@@ -3,20 +3,39 @@ from itemBased import ItemBased
 from models.product_item import ProductItem, ProdItemTag
 from typing import List
 from serializer.produc_item import product_items_serializer
-from .tag import get_tags, find_tag_weight
+from .tag import get_tags, find_tag_weight, find_child_tag
 import pandas as pd
 from .comment import get_ratings
 from .user import get_user_ids
+from bson import ObjectId
 
 
-async def get_prodItems() -> List[ProdItemTag]:
-    prodItems = await ProductItem.find_all().to_list()
+async def get_prodItems(prodId: str) -> List[ProdItemTag]:
+    tags = await find_child_tag()
+    pipeline = [
+        {"$match": {"_id": ObjectId(prodId)}},
+        {"$lookup": {
+            "from": "tags",
+            "localField": "tags",
+            "foreignField": "_id",
+            "as": "tags"
+        }},
+        {"$unwind": "$tags"},
+        {"$replaceRoot": {"newRoot": "$tags"}}
+    ]
+
+    productTags = await ProductItem.aggregate(pipeline).to_list()
+
+    prodTagIds = [str(tag['_id']) for tag in productTags]
+
+    commonTags = [ObjectId(tag) for tag in prodTagIds if tag in tags]
+
+    prodItems = await ProductItem.find_many({'tags': {'$in': commonTags}}).to_list()
     return product_items_serializer(prodItems)
-    # return prodItems
 
 
 async def recommend_CF(id: str):
-    items = await get_prodItems()
+    items = await get_prodItems(id)
     tags = await get_tags()
 
     coloumns = [item.id for item in items]
