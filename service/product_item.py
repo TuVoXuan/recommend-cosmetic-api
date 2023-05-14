@@ -7,6 +7,7 @@ from .tag import get_tags, find_tag_weight, find_child_tag
 import pandas as pd
 from .comment import get_ratings
 from .user import get_user_ids
+from sklearn.metrics.pairwise import cosine_similarity
 from bson import ObjectId
 
 
@@ -38,13 +39,13 @@ async def recommend_CF(id: str):
     items = await get_prodItems(id)
     tags = await get_tags()
 
-    coloumns = [item.id for item in items]
-    rows = [str(tag.id) for tag in tags]
+    rows = [item.id for item in items]
+    coloumns = [str(tag.id) for tag in tags]
 
     df = pd.DataFrame(0, columns=coloumns, index=rows)
     for item in items:
         for tag in item.tags:
-            df[item.id][tag] = find_tag_weight(tag, tags)
+            df[tag][item.id] = find_tag_weight(tag, tags)
 
     result = recommend_item(id, df).to_dict()
     filter_result = [key for key in result if result[key] > 0.3]
@@ -53,12 +54,20 @@ async def recommend_CF(id: str):
 
 
 def recommend_item(id: str, item_profile: pd.DataFrame):
-    item = item_profile[id]
-    similar_item = item_profile.corrwith(item)
-    similar_item = similar_item.sort_values(ascending=False)
-    similar_item = similar_item.iloc[1:]
+    # item = item_profile[id]
+    # similar_item = item_profile.corrwith(item)
+    # similar_item = similar_item.sort_values(ascending=False)
+    # similar_item = similar_item.iloc[1:]
 
-    return similar_item.head(20)
+    # return similar_item.head(20)
+
+    similarity_matrix = cosine_similarity(item_profile)
+    similarity_df = pd.DataFrame(
+        similarity_matrix, index=item_profile.index, columns=item_profile.index)
+    product_index = similarity_df.index.get_loc(id)
+
+    top_20 = similarity_df.iloc[product_index].sort_values(ascending=False)[1:]
+    return top_20
 
 
 async def get_product_item_id():
