@@ -66,7 +66,8 @@ def recommend_item(id: str, item_profile: pd.DataFrame):
         similarity_matrix, index=item_profile.index, columns=item_profile.index)
     product_index = similarity_df.index.get_loc(id)
 
-    top_20 = similarity_df.iloc[product_index].sort_values(ascending=False)[1:]
+    top_20 = similarity_df.iloc[product_index].sort_values(ascending=False)[
+        1:21]
     return top_20
 
 
