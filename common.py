@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Extra
 from bson import ObjectId
+from typing import List
 
 
 class Translate(BaseModel):
@@ -12,9 +13,11 @@ class Translate(BaseModel):
     #     json_encoders = {ObjectId: str}
     #     extra = Extra.forbid
 
+
 class Comment(BaseModel):
     id: str
     content: str
+
 
 class CommentTrans(object):
     id: str
@@ -23,3 +26,7 @@ class CommentTrans(object):
     def __init__(self, id, contentTrans):
         self.id = id
         self.contentTrans = contentTrans
+
+
+class UserProfileTag(BaseModel):
+    tags: List[str]

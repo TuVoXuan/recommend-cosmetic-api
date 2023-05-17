@@ -53,22 +53,44 @@ async def recommend_CF(id: str):
     return filter_result
 
 
-def recommend_item(id: str, item_profile: pd.DataFrame):
-    # item = item_profile[id]
-    # similar_item = item_profile.corrwith(item)
-    # similar_item = similar_item.sort_values(ascending=False)
-    # similar_item = similar_item.iloc[1:]
+async def recommend_CF_chatbot(user_tags: List[str]):
+    items = await get_product_by_category_tag(user_tags[0])
+    tags = await get_tags()
 
-    # return similar_item.head(20)
+    rows = [item.id for item in items]
+    coloumns = [str(tag.id) for tag in tags]
 
+    user_profile = []
+
+    for x in coloumns:
+        if x in user_tags:
+            user_profile.append(1)
+        else:
+            user_profile.append(0)
+
+    print('user_profile: ', user_profile)
+    df = pd.DataFrame(0, columns=coloumns, index=rows)
+    for item in items:
+        for tag in item.tags:
+            df[tag][item.id] = 1
+
+    df.loc['user_profile'] = user_profile
+
+    result = recommend_item('user_profile', df, 10).to_dict()
+    filter_result = [key for key in result if result[key] > 0.3]
+
+    return filter_result
+
+
+def recommend_item(id: str, item_profile: pd.DataFrame, limit=20):
     similarity_matrix = cosine_similarity(item_profile)
     similarity_df = pd.DataFrame(
         similarity_matrix, index=item_profile.index, columns=item_profile.index)
     product_index = similarity_df.index.get_loc(id)
 
-    top_20 = similarity_df.iloc[product_index].sort_values(ascending=False)[
-        1:21]
-    return top_20
+    top = similarity_df.iloc[product_index].sort_values(ascending=False)[
+        1:(limit+1)]
+    return top
 
 
 async def get_product_item_id():
@@ -94,3 +116,9 @@ async def recommend_item_based(user_id: str):
     for item in recommend_product_item:
         result.append(item[0])
     return result
+
+
+async def get_product_by_category_tag(category_tag_id: str):
+    products = await ProductItem.find_many({'tags': ObjectId(category_tag_id)}).to_list()
+
+    return product_items_serializer(products)
