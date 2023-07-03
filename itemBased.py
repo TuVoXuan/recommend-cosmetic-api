@@ -67,8 +67,15 @@ class ItemBased(object):
                 .sort_values('similarity_score', ascending=False)[: number_of_similar_items]
 
             # calculate the predicted rating using average similarity score and the rating from target user
-            predicted_rating = round(np.average(picked_userid_rated_similarity['rating'],
-                                                weights=picked_userid_rated_similarity['similarity_score']), 6)
+            nor_rating = picked_userid_rated_similarity['rating'].tolist()
+            sim = picked_userid_rated_similarity['similarity_score'].tolist()
+            
+            numerator = [nor_rating[i] * sim[i] for i in range(len(nor_rating))]
+            denomirator = np.abs(sim).sum()
+            
+            predicted_rating = round(sum(numerator)/denomirator, 6)
+            # predicted_rating = round(np.average(picked_userid_rated_similarity['rating'],
+            #                                     weights=picked_userid_rated_similarity['similarity_score']), 6)
 
             # saving the predicted rating in the dictionary
             rating_prediction[picked_item] = predicted_rating
